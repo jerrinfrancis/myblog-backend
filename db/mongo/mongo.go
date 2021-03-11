@@ -28,6 +28,33 @@ func (m mgDB) Posts() db.PostsDB {
 	return postsDB{col: m.client.Database("blogs").Collection("posts")}
 
 }
+func (m mgDB) Categories() db.CategoryDB {
+	return categoryDB{col: m.client.Database("blogs").Collection("categories")}
+
+}
+
+type categoryDB struct {
+	col *mongo.Collection
+}
+
+func (c categoryDB) Create(ca db.Category) error {
+	_, err := c.col.InsertOne(context.TODO(), ca)
+	return err
+}
+
+func (c categoryDB) FindAll() (*[]db.Category, error) {
+	var allCategories []db.Category
+	curr, err := c.col.Find(context.Background(), bson.D{})
+	if err != nil {
+		return nil, err
+	}
+	err = curr.All(context.Background(), &allCategories)
+	if err != nil {
+		return nil, err
+	}
+	return &allCategories, nil
+
+}
 
 type postsDB struct {
 	col *mongo.Collection
@@ -38,6 +65,7 @@ func (p postsDB) Create(po db.Post) error {
 	return err
 
 }
+
 func (p postsDB) FindByFilter(f string) (*[]db.Post, error) {
 
 	fmt.Println("f:" + f)
@@ -90,6 +118,7 @@ func (p postsDB) FindAll() (*[]db.Post, error) {
 			return nil, err
 		}
 		allpost = append(allpost, result)
+
 	}
 
 	return &allpost, err

@@ -6,10 +6,12 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+
+	"strings"
 
 	"github.com/jerrinfrancis/myblog/db"
 	"github.com/jerrinfrancis/myblog/db/mongo"
-	"strings"
 )
 
 type Image struct {
@@ -48,6 +50,12 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer file.Close()
+	// check if the directory exists else create it
+	_, err = os.Stat("temp-images")
+	if err != nil {
+		log.Println(err)
+		_ = os.Mkdir("temp-images", 0777)
+	}
 
 	tempFile, err := ioutil.TempFile("temp-images", "upload-*.png")
 	if err != nil {
@@ -77,6 +85,26 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func GetCategories(w http.ResponseWriter, r *http.Request) {
+	var categories *[]db.Category
+	mn := mongo.New()
+	categories, err := mn.Categories().FindAll()
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	bytes, err := json.Marshal(categories)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Add("Content-Type", "application/json")
+	w.Write(bytes)
+	return
+}
+
 func Get(w http.ResponseWriter, r *http.Request) {
 	mn := mongo.New()
 	var posts *[]db.Post
@@ -104,7 +132,23 @@ func Get(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
+func PostCategory(w http.ResponseWriter, r *http.Request) {
+	mn := mongo.New()
+	c := db.Category{}
+	if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	err := mn.Categories().Create(c)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
+}
 func Post(w http.ResponseWriter, r *http.Request) {
 	log.Println("Post handler reached")
 	mn := mongo.New()

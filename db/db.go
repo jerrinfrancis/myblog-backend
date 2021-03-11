@@ -2,8 +2,16 @@ package db
 
 type DB interface {
 	Posts() PostsDB
+	Categories() CategoryDB
 }
-
+type CategoryDB interface {
+	Create(c Category) error
+	FindAll() (*[]Category, error)
+}
+type Category struct {
+	CategoryName        string `json:"categoryName"`
+	CategoryDescription string `json:"categoryDescription"`
+}
 type PostsDB interface {
 	FindAll() (*[]Post, error)
 	Create(p Post) error
