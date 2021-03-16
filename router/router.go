@@ -15,6 +15,18 @@ type Router struct {
 	NotFound http.Handler
 }
 
+func corsMiddlewareHandler(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Reached CORS")
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		w.Header().Add("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		handler.ServeHTTP(w, r)
+
+	})
+}
+
 func NewRouter() *Router {
 	var mux map[string]map[string]http.Handler
 	mux = make(map[string]map[string]http.Handler)
@@ -28,7 +40,7 @@ func NewRouter() *Router {
 }
 
 func (r *Router) SetHandlerFunc(method, path string, fn http.HandlerFunc) {
-	r.mux[strings.ToLower(method)][path] = http.Handler(fn)
+	r.mux[strings.ToLower(method)][path] = corsMiddlewareHandler(http.Handler(fn))
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {

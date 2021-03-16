@@ -13,10 +13,11 @@ import (
 )
 
 func main() {
-	fmt.Println(os.Getenv("JERTEST"))
+	fmt.Println(os.Getenv("MGDBURL"), "test")
+	log.Println(os.Getenv("MGDBURL"), "test")
 	//os.Setenv("MGDBURL", "mongodb://mongo:27017")
 
-	os.Setenv("MGDBURL", "mongodb://127.0.0.1:27017")
+	//	os.Setenv("MGDBURL", "mongodb://172.17.0.1:27017")
 	router := router.NewRouter()
 	router.SetHandlerFunc("POST", "/post", posts.Post)
 	router.SetHandlerFunc("GET", "/posts", posts.Get)

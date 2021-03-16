@@ -11,5 +11,6 @@ ADD bin/myblog .
 
 #RUN /bin/bash -c "source ./env"
 #RUN echo $MGDBURL
+EXPOSE 8080
 
 ENTRYPOINT  ["./myblog"]
