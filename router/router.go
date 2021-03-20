@@ -32,6 +32,8 @@ func NewRouter() *Router {
 	mux = make(map[string]map[string]http.Handler)
 	mux["get"] = make(map[string]http.Handler)
 	mux["post"] = make(map[string]http.Handler)
+	mux["delete"] = make(map[string]http.Handler)
+	mux["options"] = make(map[string]http.Handler)
 
 	return &Router{
 		mux:      mux,
@@ -69,7 +71,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	} else {
 		basePath = urlstring
 	}
-	fmt.Println("basepath" + basePath)
+	fmt.Println("basepath" + basePath + method)
 	if hm, ok := r.mux[method]; ok {
 		fmt.Println("reached method")
 		//	/uploadfile/abcd.png

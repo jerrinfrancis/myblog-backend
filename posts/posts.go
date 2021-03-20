@@ -104,14 +104,39 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 	return
 }
+func Options(w http.ResponseWriter, r *http.Request) {
+	return
+}
+func Delete(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("testdelete")
+	mn := mongo.New()
+	var err error
+	slug, slugExists := r.Context().Value("param1").(string)
+	fmt.Println("Delete", slug)
+	if slugExists {
+		err = mn.Posts().DeleteBySlug(slug)
+	}
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
 
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
 func Get(w http.ResponseWriter, r *http.Request) {
 	mn := mongo.New()
 	var posts *[]db.Post
+	var post *db.Post
 	var err error
-	filters, ok := r.Context().Value("filter").(string)
-	if ok {
+	slug, slugExists := r.Context().Value("param1").(string)
+	//fmt.Println(slug)
+	filters, filterExists := r.Context().Value("filter").(string)
+
+	if filterExists {
 		posts, err = mn.Posts().FindByFilter(filters)
+	} else if slugExists {
+		post, err = mn.Posts().FindBySlug(slug)
 	} else {
 		posts, err = mn.Posts().FindAll()
 	}
@@ -120,7 +145,12 @@ func Get(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	bytes, err := json.Marshal(posts)
+	var bytes []byte
+	if slugExists {
+		bytes, err = json.Marshal(post)
+	} else {
+		bytes, err = json.Marshal(posts)
+	}
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -159,6 +189,9 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
+	if p.Slug == "" {
+		p.Slug = strings.ReplaceAll(p.Title, " ", "-")
+	}
 	err := mn.Posts().Create(p)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

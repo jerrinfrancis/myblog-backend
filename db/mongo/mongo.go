@@ -66,13 +66,33 @@ func (p postsDB) Create(po db.Post) error {
 
 }
 
+func (p postsDB) DeleteBySlug(s string) error {
+	var bdoc bson.D
+	bdoc = append(bdoc, bson.E{Key: "slug", Value: s})
+	_, error := p.col.DeleteOne(context.Background(), bdoc)
+	if error != nil {
+		return error
+	}
+	return nil
+}
+func (p postsDB) FindBySlug(s string) (*db.Post, error) {
+	var bdoc bson.D
+	bdoc = append(bdoc, bson.E{Key: "slug", Value: s})
+	var post db.Post
+	error := p.col.FindOne(context.Background(), bdoc).Decode(&post)
+	if error != nil {
+		return nil, error
+	}
+
+	return &post, nil
+}
 func (p postsDB) FindByFilter(f string) (*[]db.Post, error) {
 
 	fmt.Println("f:" + f)
 	flts := &Filter{}
-	json.Unmarshal([]byte(f), flts)
-
 	var bdoc bson.D
+
+	json.Unmarshal([]byte(f), flts)
 
 	for _, a := range flts.Category {
 		bdoc = append(bdoc, bson.E{Key: "category", Value: a})

@@ -16,6 +16,8 @@ type PostsDB interface {
 	FindAll() (*[]Post, error)
 	Create(p Post) error
 	FindByFilter(f string) (*[]Post, error)
+	FindBySlug(s string) (*Post, error)
+	DeleteBySlug(s string) error
 }
 
 type Post struct {
