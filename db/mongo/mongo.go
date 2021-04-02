@@ -65,7 +65,16 @@ func (p postsDB) Create(po db.Post) error {
 	return err
 
 }
+func (p postsDB) UpdateContentBySlug(s, c string) (int64, error) {
+	var bdoc, set bson.D
+	bdoc = append(bdoc, bson.E{Key: "$set", Value: append(set, bson.E{Key: "content", Value: c})})
+	result, error := p.col.UpdateOne(context.Background(), bson.M{"slug": s}, bdoc)
+	if error != nil {
+		return 0, error
+	}
+	return result.MatchedCount, nil
 
+}
 func (p postsDB) DeleteBySlug(s string) error {
 	var bdoc bson.D
 	bdoc = append(bdoc, bson.E{Key: "slug", Value: s})
@@ -151,6 +160,7 @@ func New() db.DB {
 	if client != nil {
 		return mgDB{client: client}
 	}
+	log.Println("creating client :", os.Getenv("MGDBURL"))
 	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MGDBURL")))
 	if err != nil {
 		log.Fatalln(err)

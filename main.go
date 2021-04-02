@@ -18,6 +18,7 @@ func main() {
 	//os.Setenv("MGDBURL", "mongodb://mongo:27017")
 
 	os.Setenv("MGDBURL", "mongodb://127.0.0.1:27017")
+
 	router := router.NewRouter()
 	router.SetHandlerFunc("POST", "/post", posts.Post)
 	router.SetHandlerFunc("GET", "/posts", posts.Get)
@@ -29,6 +30,7 @@ func main() {
 	router.SetHandlerFunc("POST", "/category", posts.PostCategory)
 	router.SetHandlerFunc("OPTIONS", "/category", posts.Options)
 	router.SetHandlerFunc("GET", "/categories", posts.GetCategories)
+	router.SetHandlerFunc("PATCH", "/post", posts.Update)
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: router,

@@ -34,7 +34,7 @@ func NewRouter() *Router {
 	mux["post"] = make(map[string]http.Handler)
 	mux["delete"] = make(map[string]http.Handler)
 	mux["options"] = make(map[string]http.Handler)
-
+	mux["patch"] = make(map[string]http.Handler)
 	return &Router{
 		mux:      mux,
 		NotFound: http.NotFoundHandler(),

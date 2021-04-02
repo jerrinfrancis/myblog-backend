@@ -18,6 +18,7 @@ type PostsDB interface {
 	FindByFilter(f string) (*[]Post, error)
 	FindBySlug(s string) (*Post, error)
 	DeleteBySlug(s string) error
+	UpdateContentBySlug(s, c string) (int64, error)
 }
 
 type Post struct {

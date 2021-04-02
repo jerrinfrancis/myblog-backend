@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"strings"
 
@@ -35,6 +36,7 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 		log.Println(err.Error())
 		return
 	}
+	w.Header().Add("Content-Type", "image/png")
 	w.Write(file)
 
 }
@@ -180,6 +182,10 @@ func PostCategory(w http.ResponseWriter, r *http.Request) {
 
 }
 func Post(w http.ResponseWriter, r *http.Request) {
+	loc, _ := time.LoadLocation("Asia/Kolkata")
+	now := time.Now().In(loc)
+	fmt.Println(now.Format("11-11-1991"))
+
 	log.Println("Post handler reached")
 	mn := mongo.New()
 	p := db.Post{}
@@ -196,6 +202,29 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
+		return
+	}
+}
+
+func Update(w http.ResponseWriter, r *http.Request) {
+	mn := mongo.New()
+	p := db.Post{}
+	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+	if p.Slug == "" {
+		w.Write([]byte("Missign slug"))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	log.Println("Reached Update")
+	_, err := mn.Posts().UpdateContentBySlug(p.Slug, p.Content)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
