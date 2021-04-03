@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 
 	"time"
 
@@ -22,6 +23,7 @@ type mgDB struct {
 type Filter struct {
 	Category []string
 	Tag      []string
+	Limit    []string
 }
 
 func (m mgDB) Posts() db.PostsDB {
@@ -65,9 +67,9 @@ func (p postsDB) Create(po db.Post) error {
 	return err
 
 }
-func (p postsDB) UpdateContentBySlug(s, c string) (int64, error) {
+func (p postsDB) UpdateContentBySlug(s, content, contentPreview string) (int64, error) {
 	var bdoc, set bson.D
-	bdoc = append(bdoc, bson.E{Key: "$set", Value: append(set, bson.E{Key: "content", Value: c})})
+	bdoc = append(bdoc, bson.E{Key: "$set", Value: append(set, bson.E{Key: "content", Value: content}, bson.E{Key: "contentPreview", Value: contentPreview})})
 	result, error := p.col.UpdateOne(context.Background(), bson.M{"slug": s}, bdoc)
 	if error != nil {
 		return 0, error
@@ -99,20 +101,30 @@ func (p postsDB) FindByFilter(f string) (*[]db.Post, error) {
 
 	fmt.Println("f:" + f)
 	flts := &Filter{}
-	var bdoc bson.D
+	var bdoc = bson.D{}
+	//var filterExists bool
 
 	json.Unmarshal([]byte(f), flts)
 
 	for _, a := range flts.Category {
 		bdoc = append(bdoc, bson.E{Key: "category", Value: a})
+		//filterExists = true
 	}
 	for _, a := range flts.Tag {
 		bdoc = append(bdoc, bson.E{Key: "tags", Value: a})
+		//filterExists = true
 	}
+	options := options.Find()
 
+	for _, a := range flts.Limit {
+		log.Println("Limit", a)
+		options.SetSort(bson.D{{"_id", -1}})
+		limit, _ := strconv.ParseInt(a, 10, 64)
+		options.SetLimit(limit)
+	}
 	var allpost []db.Post
 
-	curr, err := p.col.Find(context.Background(), bdoc)
+	curr, err := p.col.Find(context.Background(), bdoc, options)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -132,6 +144,7 @@ func (p postsDB) FindByFilter(f string) (*[]db.Post, error) {
 }
 func (p postsDB) FindAll() (*[]db.Post, error) {
 	var allpost []db.Post
+
 	//	curr, err := p.col.Find(context.Background(), bson.D{{"category", "politics"}})
 
 	curr, err := p.col.Find(context.Background(), bson.D{})

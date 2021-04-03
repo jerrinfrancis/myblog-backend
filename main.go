@@ -30,7 +30,8 @@ func main() {
 	router.SetHandlerFunc("POST", "/category", posts.PostCategory)
 	router.SetHandlerFunc("OPTIONS", "/category", posts.Options)
 	router.SetHandlerFunc("GET", "/categories", posts.GetCategories)
-	router.SetHandlerFunc("PATCH", "/post", posts.Update)
+	router.SetHandlerFunc("PATCH", "/editpost", posts.Update)
+	router.SetHandlerFunc("OPTIONS", "/editpost", posts.Options)
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: router,

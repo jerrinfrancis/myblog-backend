@@ -136,10 +136,13 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	filters, filterExists := r.Context().Value("filter").(string)
 
 	if filterExists {
+		fmt.Println("filtereists")
 		posts, err = mn.Posts().FindByFilter(filters)
 	} else if slugExists {
+		fmt.Println("sligexists")
 		post, err = mn.Posts().FindBySlug(slug)
 	} else {
+		fmt.Println("find all")
 		posts, err = mn.Posts().FindAll()
 	}
 	if err != nil {
@@ -221,7 +224,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println("Reached Update")
-	_, err := mn.Posts().UpdateContentBySlug(p.Slug, p.Content)
+	_, err := mn.Posts().UpdateContentBySlug(p.Slug, p.Content, p.ContentPreview)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)

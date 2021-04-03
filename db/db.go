@@ -18,16 +18,17 @@ type PostsDB interface {
 	FindByFilter(f string) (*[]Post, error)
 	FindBySlug(s string) (*Post, error)
 	DeleteBySlug(s string) error
-	UpdateContentBySlug(s, c string) (int64, error)
+	UpdateContentBySlug(s, content, previewContent string) (int64, error)
 }
 
 type Post struct {
-	Slug      string   `json:"slug"`
-	Title     string   `json:"title"`
-	Content   string   `json:"content"`
-	Category  []string `json:"category"`
-	Tags      []string `json:"tags"`
-	Author    string   `json:"author"`
-	Date      string   `json:"date"`
-	Published bool     `json:"published"`
+	Slug           string   `json:"slug"`
+	Title          string   `json:"title"`
+	ContentPreview string   `json:"contentPreview"`
+	Content        string   `json:"content"`
+	Category       []string `json:"category"`
+	Tags           []string `json:"tags"`
+	Author         string   `json:"author"`
+	Date           string   `json:"date"`
+	Published      bool     `json:"published"`
 }
