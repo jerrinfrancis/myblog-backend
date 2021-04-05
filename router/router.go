@@ -16,8 +16,14 @@ type Router struct {
 }
 
 func corsMiddlewareHandler(handler http.Handler) http.Handler {
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Reached CORS")
+		/*	if (r.Method == http.MethodPost || r.Method == http.MethodPatch) && os.Getenv("BLOG_IN_PROD") == "X" {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			w.Write([]byte("Post method not supported"))
+			return
+		}*/
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Header().Add("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH")
@@ -37,7 +43,7 @@ func NewRouter() *Router {
 	mux["patch"] = make(map[string]http.Handler)
 	return &Router{
 		mux:      mux,
-		NotFound: http.NotFoundHandler(),
+		NotFound: corsMiddlewareHandler(http.NotFoundHandler()),
 	}
 }
 
@@ -46,6 +52,7 @@ func (r *Router) SetHandlerFunc(method, path string, fn http.HandlerFunc) {
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+
 	method := strings.ToLower(req.Method)
 	urlstring := req.URL.String()
 	fmt.Println(urlstring)
