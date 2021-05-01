@@ -28,6 +28,7 @@ type Filter struct {
 type Message struct {
 	SenderName  string `json:"senderName"`
 	SenderEmail string `json:"senderEmail"`
+	SenderPhNo  string `json:"senderPhNo"`
 	Message     string `json:"message"`
 }
 
@@ -43,6 +44,7 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 	postBody, _ := json.Marshal(map[string]string{
 		"senderEmail": c.SenderEmail,
 		"senderName":  c.SenderName,
+		"senderPhNo":  c.SenderPhNo,
 		"message":     c.Message,
 	})
 	body := bytes.NewBuffer(postBody)
