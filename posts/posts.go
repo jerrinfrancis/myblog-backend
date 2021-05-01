@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -24,6 +25,33 @@ type Filter struct {
 	Tag      []string
 }
 
+type Message struct {
+	SenderName  string `json:"senderName"`
+	SenderEmail string `json:"senderEmail"`
+	Message     string `json:"message"`
+}
+
+func SendMessage(w http.ResponseWriter, r *http.Request) {
+	c := new(Message)
+	if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	log.Println(c)
+	defer r.Body.Close()
+	postBody, _ := json.Marshal(map[string]string{
+		"senderEmail": c.SenderEmail,
+		"senderName":  c.SenderName,
+		"message":     c.Message,
+	})
+	body := bytes.NewBuffer(postBody)
+	_, err := http.Post(os.Getenv("MY_BLOG_CONTACTSELF_API"), "application/json", body)
+	if err != nil {
+		// error to send email should not result in backend service terminating
+		log.Printf("An Error Occured %v", err)
+	}
+}
 func GetFile(w http.ResponseWriter, r *http.Request) {
 	filename, ok := r.Context().Value("param1").(string)
 	if !ok {

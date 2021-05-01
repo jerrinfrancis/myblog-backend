@@ -173,8 +173,13 @@ func New() db.DB {
 	if client != nil {
 		return mgDB{client: client}
 	}
-	log.Println("creating client :", os.Getenv("MGDBURL"))
-	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MGDBURL")))
+	blogDBURL := os.Getenv("MY_BLOG_DB_URL")
+	if len(blogDBURL) == 0 {
+		blogDBURL = "mongodb://127.0.0.1:27017"
+
+	}
+	log.Println("creating client :", blogDBURL)
+	client, err := mongo.NewClient(options.Client().ApplyURI(blogDBURL))
 	if err != nil {
 		log.Fatalln(err)
 	}
