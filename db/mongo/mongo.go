@@ -179,7 +179,8 @@ func New() db.DB {
 
 	}
 	log.Println("creating client :", blogDBURL)
-	client, err := mongo.NewClient(options.Client().ApplyURI(blogDBURL))
+	var err error
+	client, err = mongo.NewClient(options.Client().ApplyURI(blogDBURL))
 	if err != nil {
 		log.Fatalln(err)
 	}

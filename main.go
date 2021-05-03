@@ -14,8 +14,6 @@ import (
 func main() {
 	log.Println("Mongo URL: ", os.Getenv("MY_BLOG_DB_URL"))
 	log.Println("IN_PROD", os.Getenv("MY_BLOG_IN_PROD"))
-	//os.Setenv("MGDBURL", "mongodb://127.0.0.1:27017")
-	//os.Setenv("BLOG_IN_PROD", "X")
 
 	router := router.NewRouter()
 	// Default setting in production
