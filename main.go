@@ -11,6 +11,7 @@ import (
 	"github.com/jerrinfrancis/myblog/router"
 )
 
+//test
 func main() {
 	log.Println("Mongo URL: ", os.Getenv("MY_BLOG_DB_URL"))
 	log.Println("IN_PROD", os.Getenv("MY_BLOG_IN_PROD"))
